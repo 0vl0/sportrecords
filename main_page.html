@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+        margin: 0;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        }
+  </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Chart</a></li>
+                    <li><a href="#" id="settingsBtn">Settings</a></li>
+                </ul>
+            </nav></div>
+
+        <div id="main_container" class="map-container">
+            <svg id="map"></svg>
+            <script src="load_data.js"></script>
+            <script>
+              var lastTimeSvgClicked = new Date().getTime();
+              function onSvgClicked() {
+                  // console.log('test function')
+                  const currentTime = new Date().getTime();
+                  if (clicked && currentTime-lastTimeSvgClicked >= 100){
+                    g.selectAll("path")
+                      .attr("opacity", .8)
+                      tooltip.style("visibility", "hidden")
+                    // console.log("delta = ", currentTime-lastTimeSvgClicked)
+                    clicked = false   
+                    tooltip.style("visibility", "hidden")
+                  }
+                  // console.log("currentTime: ", currentTime);
+                } 
+                document.getElementById("map").addEventListener("click", onSvgClicked); 
+
+              // function tooltipFunction(){
+                // conosole.log('tooltip button clicked')
+              // }
+              // document.getElementById("tooltipButton").addEventListener("click", tooltipFunction); 
+
+              console.log('inside main_page...');
+              
+              var margin = {'left':10, 'right':10, 'top':10, 'bottom':10};
+          
+              var svg = d3.select("svg"),
+                        width = window.innerWidth,
+                        height = window.innerHeight;
+
+              svg.attr('width', width)
+                 .attr('height', height);
+
+              var g = svg.append("g");
+              // g.on("click",function(){
+              //   console.log('clicko on g')
+              // });
+
+              const foreignObject = g.append("foreignObject")
+                                     .attr("width", "100%")
+                                     .attr("height", "100%")
+                                     .attr("pointer-events", "none")
+
+              var tooltip = foreignObject.append("xhtml:div")
+                                          .style("position", "absolute")
+                                          .style("visibility", "hidden")
+                                          .style("background-color", "white")
+                                          .style("border", "solid")
+                                          .style("border-width", "1px")
+                                          .style("border-radius", "5px")
+                                          .style("padding", "10px")
+          
+              var clicked = false;
+          
+              var projection = d3.geoEquirectangular();
+              var path = d3.geoPath().projection(projection);
+          
+              var color = d3
+                .scaleQuantize()
+                .range(["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]);
+          
+              var path = d3.geoPath().projection(projection);
+
+              var sport = '100-metres';
+
+              Promise.all([
+                  d3.csv("records_reduced.csv"),
+                  d3.json("world.geojson")  
+              ]).then(function(data){
+                var records_data = data[0];
+                var world = data[1];
+
+                const country_regex = /\(([A-Z]{3})\)/
+                const format = d3.timeFormat("%d %b %Y")
+
+                const hashmap_country_codes = {
+                  "GER": "DEU",
+                  "SUI":"CHE"
+                };
+
+                function get_country_id(hashmap, key) {
+                  if (key in hashmap) {
+                      return hashmap[key];
+                  } else {
+                      return key;
+                  }
+                }
+
+                var raw = records_data.map((d, i) => {
+                  // console.log('d = ', d)
+                  d.country_record = get_country_id(hashmap_country_codes, d.Venue.match(country_regex)[1]);
+                  d.date_record = d3.timeParse(format)(d.Date);
+                  if (d.DOB) {
+                      d.date_of_birth = d3.timeParse(format)(d.DOB);
+                      d.age = d3.timeYear.count(d.date_of_birth, d.date_record);
+                  } else {
+                      // If DOB is missing, set age to null
+                      d.age = null;
+                  }
+                  return d
+                })
+                sport_data = raw.filter(d => d.event_name == sport);
+                var countries_sport = [... new Set(sport_data.map(x => x.country_record))];
+                var sport_by_country_data = get_data_by_country(sport_data);
+
+                console.log('sport_data = ', sport_data);
+                console.log('countries_sport = ', countries_sport);
+                console.log('sport_by_country_data = ', sport_by_country_data);
+
+                var color = d3.scaleLinear()
+                            .domain([10, 1])
+                            .range(["rgb(100, 0, 0)", "red"])
+
+                var projection = d3.geoEquirectangular().fitSize([width, height], world);
+                var path = d3.geoPath().projection(projection);
+
+                g.selectAll("path")
+                  .attr("opacity", .8)
+                  tooltip.style("visibility", "hidden")
+
+
+                g.selectAll("path")
+                 .data(world.features)
+                 .enter().append("path")
+                         .attr("fill", "#69b3a2")
+                         .attr("d", path)
+                         //.style("stroke", "#fff")
+                         .style("fill", function (d) {
+                             if (countries_sport.includes(d.id)){
+                             // console.log('countries_sport:', countries_sport)
+                               return color(d3.min(sport_by_country_data[d.id].map(x => x.rank)))
+                               //return "#1a6269";
+                             }
+                                 return "#e1f1f2";
+                           })
+                  .on("mouseenter", (e,d) => {
+                      // console.log('d = ', d)
+                      if (clicked == false){
+                        g.selectAll("path")
+                          .filter(f => f == d)
+                          .attr("opacity", 1)
+                      }
+                      if (clicked == false && countries_sport.includes(d.id)){
+                      
+                        g.selectAll("path")
+                          // .filter(f => !f.__selected)
+                          .attr("opacity", .3)
+
+                        g.selectAll("path")
+                         .filter(f => f == d)
+                         .attr("opacity", 1)
+                          
+                        // g.selectAll("path")
+                        // .filter(f => f == d)
+                        // .attr("opacity", 1)
+                    
+                        var data = sport_by_country_data[d.id][0];
+                    
+                        // console.log('e.layerX:', e.layerX)
+
+                        var html_tooltip = `<span style='font-size: 20px; font-weight: bold;'>${data.Competitor}<br></span>
+                                      <span style='font-size: 15px;'>Rank: ${data.rank}<br></span>
+                                      <span style='font-size: 15px;'>Mark: ${data.Mark}<br></span>
+                                      <span style='font-size: 15px;'>Age: ${data.age}<br></span>
+                                      <span style='font-size: 15px;'>Date: ${data.Date}<br></span>
+                                      <span style='font-size: 15px;'>Venue: ${data.Venue}<br></span>`
+                        
+                        if (sport_by_country_data[d.id].length > 1){
+                          html_tooltip = html_tooltip + `<button id="tooltipButton">Next</button>`
+                        }
+                        
+                        tooltip.html(html_tooltip)
+                                .style("visibility", "visible")
+                                .style("left", `${(e.layerX+10)}px`)
+                                .style("top", `${(e.layerY+10)}px`)
+                      }
+
+                      foreignObject.raise()
+                    })
+                  .on("mouseleave", (e, d) => {
+                    if (clicked == false){
+                      g.selectAll("path")
+                      .attr("opacity", .8)
+                      tooltip.style("visibility", "hidden")
+                    }
+                  })
+                  .on("click", (e, d) => {
+                  console.log('onmouseclick, d = ', d)
+                  // if (countries_sport.includes(d.id) == false){
+                    // clicked = false   
+                    // tooltip.style("visibility", "hidden")
+                  // }
+                  // else{
+                    // clicked = true
+                    // tooltip.style("visibility", "visible")
+                  // }
+                  if (countries_sport.includes(d.id)){
+                    clicked = true
+                    tooltip.style("visibility", "visible")
+                    lastTimeSvgClicked = new Date().getTime();
+                  }
+                  else{
+                    clicked = false   
+                    tooltip.style("visibility", "hidden")
+                    g.selectAll("path")
+                          // .filter(f => !f.__selected)
+                          .attr("opacity", .8)
+                  }
+                  });
+                  
+              })
+
+              </script>
+        </div>
+
+        <!-- Popup Window -->
+        <div id="settingsPopup" class="popup">
+          <div class="popup-content">
+              <h2>Settings</h2>
+              <label for="options">Sport:</label>
+              <select id="options">
+                <!-- Options will be added dynamically here -->
+              </select>
+              <br>
+              <label for="male">Male:</label>
+              <input type="radio" id="male" name="gender">
+              <label for="female">Female:</label>
+              <input type="radio" id="female" name="gender">
+              <br>
+              <button onclick="closePopup()">Ok</button>
+          </div>
+
+          <script>
+            // Open the popup when the "Settings" link is clicked
+            document.getElementById("settingsBtn").addEventListener("click", function(event) {
+                event.preventDefault();
+                document.getElementById("settingsPopup").style.display = "block";
+                console.log('raw = ', raw);
+            });
+
+            // Close the popup when the close button is clicked
+            function closePopup() {
+                document.getElementById("settingsPopup").style.display = "none";
+            }
+          </script>
+        </div>
+    </div>
+</body>
+</html>
