@@ -16,7 +16,8 @@
     top: 0;
     right: 0;
     background-color: #333;
-    padding: 10px 20px;
+    padding: 1.2vh 1vw;
+    font-size: 1vw; 
 }
 
 .top-bar nav ul {
@@ -25,7 +26,13 @@
 
 .top-bar nav ul li {
     display: inline-block;
-    margin-right: 20px;
+    margin-right: 0.2vw;
+}
+
+#flag_image {
+    vertical-align: middle;
+    /* width: 40px; Set the width of the image */
+    height: auto; /* Maintain the aspect ratio */
 }
 
 .top-bar nav ul li a {
@@ -35,11 +42,25 @@
 }
 
 /* Styling for the map container */
-.map-container {
-    width: calc(100% - 200px); /* Adjust based on the width of the top bar */
+/* .map-container { */
+    /* height: 100vh; */
+    /* margin-top: 0.1vh; */
+    /* margin-right: 200px; Adjust based on the width of the top bar */
+/* } */
+
+/* .map {
     height: 100vh;
-    margin-top: 60px; /* Adjust based on the height of the top bar */
-    margin-right: 200px; /* Adjust based on the width of the top bar */
+} */
+
+.top_title {
+    display: flex; /* Set the display property to flex */
+    justify-content: center; /* Center the content horizontally */
+    padding-top: 0.5vh; /* Add top padding */
+    font-weight: bold;
+}
+
+#top_title_text {
+    font-size: 1.2vw; /* Adjust the size of the text */
 }
 
 .popup {
@@ -49,15 +70,133 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #fff;
-    padding: 20px;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    padding-left: 1vw;
+    padding-right: 1vw;
     border: 1px solid #ccc;
     z-index: 1000;
 }
 
-.popup-content {
+/* .popup-content {
     text-align: center;
+    font-size: 1vw;
+
+} */
+
+#title_settings{
+    font-size: 1vw;
 }
 
-.popup-content label {
-    margin-right: 10px;
+.popup-content {
+    text-align: center;
+    margin-right: 0.5vw;
+    font-size: 1vw;
+}
+
+#settings_list {
+    padding-top: 0.3vh;
+    padding-bottom: 0.3vh;
+    font-size: 0.8vw;
+}
+
+#ok_button_settings{
+    font-size: 0.7vw;
+}
+
+#sport_list{
+    padding-top: 1vh;
+}
+
+#radio_buttons {
+    padding-top: 1vh;
+}
+
+#record_popup{
+    visibility: visible;
+    max-width: 100%;
+    max-height: 100%;
+    position: absolute;
+    border-width: 0px;
+    border-radius: 5px;
+    padding: 10px;    
+    background-color: white;
+    border: solid;
+}
+
+#record_popup span {
+    display: block;                
+}
+
+#buttonContainer {
+    display: flex;
+    align-items: center; /* Align items vertically */
+}
+
+/* td, th {
+    padding: 1px 4px;
+  } */
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+
+  }
+  /* th, td {
+    border: none;
+    padding: 8px;
+    text-align: left;
+  } */
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  #table_container {
+    position:absolute;
+    top: 45%; 
+    left: 2%;
+    min-height: 40%;
+    max-height: 45%;
+    width: 15%;
+    overflow-y: auto;
+    font-size: 0.7vw;
+}
+
+.record_info {
+    padding-top: 0.2vh;
+    font-size: 0.8vw; /* Adjust the font size of record information based on the window width */
+}
+
+#buttonContainer button {
+    font-size: 0.7vw; 
+    padding: 0.2vh 0.4vw; 
+    margin-top: 0.7vh;
+    margin-right: 0.3vw;
+}
+
+#radio_male {
+    margin-right: 10px; /* Add horizontal space between "Male" and the first button */
+}
+
+#radio_buttons input[type="radio"] {
+    /* Increase the width and height to make the radio buttons larger */
+    width: 0.5vw;
+    height: 0.5vw;
+    /* Adjust other styles as needed */
+}
+
+.slider_container {
+    padding-top: 1vh; 
+    padding-bottom: 0.5vh;
+}
+
+#video_container {
+    float: left; /* Float the video container to the left */
+}   
+
+.slider_container input[type=range] {
+    width: 50%; /* Adjust the width as needed */
 }

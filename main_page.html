@@ -19,264 +19,116 @@
 </head>
 <body>
     <div class="container">
+        <!-- <script src="load_data.js"></script> -->
+        <div class="top_title">
+            <span id="top_title_text"></span>
+        </div>
+
         <div class="top-bar">
             <nav>
                 <ul>
                     <li><a href="#">Home</a></li>
                     <li><a href="#">Chart</a></li>
-                    <li><a href="#" id="settingsBtn">Settings</a></li>
+                    <li><a href="#" id="settings_button">Settings</a></li>
                 </ul>
             </nav></div>
 
+
         <div id="main_container" class="map-container">
             <svg id="map"></svg>
-            <script src="load_data.js"></script>
-            <script>
-              var lastTimeSvgClicked = new Date().getTime();
-              function onSvgClicked() {
-                  // console.log('test function')
-                  const currentTime = new Date().getTime();
-                  if (clicked && currentTime-lastTimeSvgClicked >= 100){
-                    g.selectAll("path")
-                      .attr("opacity", .8)
-                      tooltip.style("visibility", "hidden")
-                    // console.log("delta = ", currentTime-lastTimeSvgClicked)
-                    clicked = false   
-                    tooltip.style("visibility", "hidden")
-                  }
-                  // console.log("currentTime: ", currentTime);
-                } 
-                document.getElementById("map").addEventListener("click", onSvgClicked); 
+            <!-- Athlete Popup Window -->
+            <div id="record_popup">
+                <h2 id="athlete_name"></h2>
+                <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor<br></span> -->
+                <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor <img src="flags/JAM.png" id="country_picture" style="vertical-align: middle;"></span> -->
+                <div class="record_info">
 
-              // function tooltipFunction(){
-                // conosole.log('tooltip button clicked')
-              // }
-              // document.getElementById("tooltipButton").addEventListener("click", tooltipFunction); 
-
-              console.log('inside main_page...');
-              
-              var margin = {'left':10, 'right':10, 'top':10, 'bottom':10};
-          
-              var svg = d3.select("svg"),
-                        width = window.innerWidth,
-                        height = window.innerHeight;
-
-              svg.attr('width', width)
-                 .attr('height', height);
-
-              var g = svg.append("g");
-              // g.on("click",function(){
-              //   console.log('clicko on g')
-              // });
-
-              const foreignObject = g.append("foreignObject")
-                                     .attr("width", "100%")
-                                     .attr("height", "100%")
-                                     .attr("pointer-events", "none")
-
-              var tooltip = foreignObject.append("xhtml:div")
-                                          .style("position", "absolute")
-                                          .style("visibility", "hidden")
-                                          .style("background-color", "white")
-                                          .style("border", "solid")
-                                          .style("border-width", "1px")
-                                          .style("border-radius", "5px")
-                                          .style("padding", "10px")
-          
-              var clicked = false;
-          
-              var projection = d3.geoEquirectangular();
-              var path = d3.geoPath().projection(projection);
-          
-              var color = d3
-                .scaleQuantize()
-                .range(["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]);
-          
-              var path = d3.geoPath().projection(projection);
-
-              var sport = '100-metres';
-
-              Promise.all([
-                  d3.csv("records_reduced.csv"),
-                  d3.json("world.geojson")  
-              ]).then(function(data){
-                var records_data = data[0];
-                var world = data[1];
-
-                const country_regex = /\(([A-Z]{3})\)/
-                const format = d3.timeFormat("%d %b %Y")
-
-                const hashmap_country_codes = {
-                  "GER": "DEU",
-                  "SUI":"CHE"
-                };
-
-                function get_country_id(hashmap, key) {
-                  if (key in hashmap) {
-                      return hashmap[key];
-                  } else {
-                      return key;
-                  }
-                }
-
-                var raw = records_data.map((d, i) => {
-                  // console.log('d = ', d)
-                  d.country_record = get_country_id(hashmap_country_codes, d.Venue.match(country_regex)[1]);
-                  d.date_record = d3.timeParse(format)(d.Date);
-                  if (d.DOB) {
-                      d.date_of_birth = d3.timeParse(format)(d.DOB);
-                      d.age = d3.timeYear.count(d.date_of_birth, d.date_record);
-                  } else {
-                      // If DOB is missing, set age to null
-                      d.age = null;
-                  }
-                  return d
-                })
-                sport_data = raw.filter(d => d.event_name == sport);
-                var countries_sport = [... new Set(sport_data.map(x => x.country_record))];
-                var sport_by_country_data = get_data_by_country(sport_data);
-
-                console.log('sport_data = ', sport_data);
-                console.log('countries_sport = ', countries_sport);
-                console.log('sport_by_country_data = ', sport_by_country_data);
-
-                var color = d3.scaleLinear()
-                            .domain([10, 1])
-                            .range(["rgb(100, 0, 0)", "red"])
-
-                var projection = d3.geoEquirectangular().fitSize([width, height], world);
-                var path = d3.geoPath().projection(projection);
-
-                g.selectAll("path")
-                  .attr("opacity", .8)
-                  tooltip.style("visibility", "hidden")
-
-
-                g.selectAll("path")
-                 .data(world.features)
-                 .enter().append("path")
-                         .attr("fill", "#69b3a2")
-                         .attr("d", path)
-                         //.style("stroke", "#fff")
-                         .style("fill", function (d) {
-                             if (countries_sport.includes(d.id)){
-                             // console.log('countries_sport:', countries_sport)
-                               return color(d3.min(sport_by_country_data[d.id].map(x => x.rank)))
-                               //return "#1a6269";
-                             }
-                                 return "#e1f1f2";
-                           })
-                  .on("mouseenter", (e,d) => {
-                      // console.log('d = ', d)
-                      if (clicked == false){
-                        g.selectAll("path")
-                          .filter(f => f == d)
-                          .attr("opacity", 1)
-                      }
-                      if (clicked == false && countries_sport.includes(d.id)){
-                      
-                        g.selectAll("path")
-                          // .filter(f => !f.__selected)
-                          .attr("opacity", .3)
-
-                        g.selectAll("path")
-                         .filter(f => f == d)
-                         .attr("opacity", 1)
-                          
-                        // g.selectAll("path")
-                        // .filter(f => f == d)
-                        // .attr("opacity", 1)
-                    
-                        var data = sport_by_country_data[d.id][0];
-                    
-                        // console.log('e.layerX:', e.layerX)
-
-                        var html_tooltip = `<span style='font-size: 20px; font-weight: bold;'>${data.Competitor}<br></span>
-                                      <span style='font-size: 15px;'>Rank: ${data.rank}<br></span>
-                                      <span style='font-size: 15px;'>Mark: ${data.Mark}<br></span>
-                                      <span style='font-size: 15px;'>Age: ${data.age}<br></span>
-                                      <span style='font-size: 15px;'>Date: ${data.Date}<br></span>
-                                      <span style='font-size: 15px;'>Venue: ${data.Venue}<br></span>`
-                        
-                        if (sport_by_country_data[d.id].length > 1){
-                          html_tooltip = html_tooltip + `<button id="tooltipButton">Next</button>`
-                        }
-                        
-                        tooltip.html(html_tooltip)
-                                .style("visibility", "visible")
-                                .style("left", `${(e.layerX+10)}px`)
-                                .style("top", `${(e.layerY+10)}px`)
-                      }
-
-                      foreignObject.raise()
-                    })
-                  .on("mouseleave", (e, d) => {
-                    if (clicked == false){
-                      g.selectAll("path")
-                      .attr("opacity", .8)
-                      tooltip.style("visibility", "hidden")
-                    }
-                  })
-                  .on("click", (e, d) => {
-                  console.log('onmouseclick, d = ', d)
-                  // if (countries_sport.includes(d.id) == false){
-                    // clicked = false   
-                    // tooltip.style("visibility", "hidden")
-                  // }
-                  // else{
-                    // clicked = true
-                    // tooltip.style("visibility", "visible")
-                  // }
-                  if (countries_sport.includes(d.id)){
-                    clicked = true
-                    tooltip.style("visibility", "visible")
-                    lastTimeSvgClicked = new Date().getTime();
-                  }
-                  else{
-                    clicked = false   
-                    tooltip.style("visibility", "hidden")
-                    g.selectAll("path")
-                          // .filter(f => !f.__selected)
-                          .attr("opacity", .8)
-                  }
-                  });
+                  <div id="competitor_container" style="font-size: 1vw; font-weight: bold; display: flex; align-items: center;">
+                      <span id="record_competitor">Competitor<br></span>
+                      <img id="flag_image" src="" alt="" style="vertical-align: middle; padding-left:1vh; width: 2.2vw;">
+                  </div>
                   
-              })
-
-              </script>
+                  <span id="record_rank">Rank: <br></span>
+                  <span id="record_mark">Mark: <br></span>
+                  <span id="record_age">Age: <br></span>
+                  <span id="record_date">Date: <br></span>
+                  <span id="record_venue">Venue: <br></span>
+                  <span id="record_nationality">Nationality: <br></span>
+                  <div id="buttonContainer">
+                      <!-- Back button initially hidden -->
+                      <button id="back_button" style="display: none;">Back</button>
+                      
+                      <!-- Next button -->
+                      <span id="popup_button" style="display: none;"><button>Next</button></span>
+                  </div>
+              
+                </div>
+            </div>
+            
+            <div id="table_container">
+              <table id="table_athletes">
+                  <!-- Table content goes here -->
+              </table>
+            </div>
         </div>
 
-        <!-- Popup Window -->
-        <div id="settingsPopup" class="popup">
-          <div class="popup-content">
-              <h2>Settings</h2>
-              <label for="options">Sport:</label>
-              <select id="options">
-                <!-- Options will be added dynamically here -->
-              </select>
-              <br>
-              <label for="male">Male:</label>
-              <input type="radio" id="male" name="gender">
-              <label for="female">Female:</label>
-              <input type="radio" id="female" name="gender">
-              <br>
-              <button onclick="closePopup()">Ok</button>
-          </div>
+      
+        <!-- Settings Popup Window -->
+        <div id="settings_popup" class="popup">
+            <div class="popup-content">
+                <h2 id="title_settings">Settings</h2>
+                <div id="sport_list">
+                    <label for="options">Sport:</label>
+                    <select id="settings_list">
+                </div>
+                
+                </select>
+                <br>
 
-          <script>
-            // Open the popup when the "Settings" link is clicked
-            document.getElementById("settingsBtn").addEventListener("click", function(event) {
-                event.preventDefault();
-                document.getElementById("settingsPopup").style.display = "block";
-                console.log('raw = ', raw);
-            });
+                <div id="radio_buttons">
+                    <label for="male">Men:</label>
+                    <input type="radio" id="radio_male" name="radio_gender">
+                    <label for="female">Women:</label>
+                    <input type="radio" id="radio_female" name="radio_gender" checked="false">
+                </div>
 
-            // Close the popup when the close button is clicked
-            function closePopup() {
-                document.getElementById("settingsPopup").style.display = "none";
-            }
-          </script>
+                <div class="slider_container">
+                    <label for="slider">Number:</label>
+                    <input type="range" id="slider" name="slider" min="1" max="100" value="10">
+                    <span id="sliderValue">10</span>
+                </div>
+            </div>
+
+            <script src="load_data.js"></script>
+  
+            <script>
+              // Open the popup when the "Settings" link is clicked
+              document.getElementById("settings_button").addEventListener("click", function(event) {
+                  event.preventDefault();
+                  settings_list = document.getElementById("settings_list");
+                //   console.log("settings_list = ", settings_list)
+                  // Add new options
+                  if (sport_map.settings_loaded == false){
+                    sport_map.set_sports.forEach((option, index) => {
+                        sport_map.index_sport_settings[option] = index;
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        settings_list.appendChild(optionElement);
+                    });
+                    sport_map.settings_loaded = true;
+                  }
+                  settings_list.selectedIndex = sport_map.index_sport_settings[sport_map.sport];
+                  
+                  document.getElementById("settings_popup").style.display = "block";
+                  sport_map.settings_open = true;
+                //   console.log("countries, countries sport = ", sport_map.countries_sport)
+              });
+  
+             
+              // Close the popup when the close button is clicked
+              
+            </script>
         </div>
-    </div>
 </body>
 </html>
