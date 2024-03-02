@@ -44,7 +44,7 @@ sport_map.index_popup = 0;
 
 sport_map.last_time_svg_clicked = 0;
 sport_map.gender = 'men';
-sport_map.number_samples = 20;
+sport_map.number_samples = 10;
 
 sport_map.color = d3.scaleLinear()
     .domain([sport_map.number_samples, 1])
