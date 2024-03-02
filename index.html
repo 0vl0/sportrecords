@@ -1,101 +1,134 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+        margin: 0;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        }
   </style>
 </head>
-
 <body>
-  <script>
-    var width = 700,
-      height = 580;
+    <div class="container">
+        <!-- <script src="load_data.js"></script> -->
+        <div class="top_title">
+            <span id="top_title_text"></span>
+        </div>
 
-    console.log('launching script')
+        <div class="top-bar">
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Chart</a></li>
+                    <li><a href="#" id="settings_button">Settings</a></li>
+                </ul>
+            </nav></div>
 
-    var svg = d3
-      .select("body")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height);
 
-    // On rajoute un groupe englobant toute la visualisation pour plus tard
-    var g = svg.append("g");
+        <div id="main_container" class="map-container">
+            <svg id="map"></svg>
+            <!-- Athlete Popup Window -->
+            <div id="record_popup">
+                <h2 id="athlete_name"></h2>
+                <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor<br></span> -->
+                <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor <img src="flags/JAM.png" id="country_picture" style="vertical-align: middle;"></span> -->
+                <div class="record_info">
 
-    // Autres projections : geoMercator, geoNaturalEarth1, ...
-    // https://github.com/d3/d3-geo/blob/master/README.md
-    var projection = d3
-      .geoAlbersUsa()
-      .translate([width / 2, height / 2])
-      .scale([500]);
+                  <div id="competitor_container" style="font-size: 1vw; font-weight: bold; display: flex; align-items: center;">
+                      <span id="record_competitor">Competitor<br></span>
+                      <img id="flag_image" src="" alt="" style="vertical-align: middle; padding-left:1vh; width: 2.2vw;">
+                  </div>
+                  
+                  <span id="record_rank">Rank: <br></span>
+                  <span id="record_mark">Mark: <br></span>
+                  <span id="record_age">Age: <br></span>
+                  <span id="record_date">Date: <br></span>
+                  <span id="record_venue">Venue: <br></span>
+                  <span id="record_nationality">Nationality: <br></span>
+                  <div id="buttonContainer">
+                      <!-- Back button initially hidden -->
+                      <button id="back_button" style="display: none;">Back</button>
+                      
+                      <!-- Next button -->
+                      <span id="popup_button" style="display: none;"><button>Next</button></span>
+                  </div>
+              
+                </div>
+            </div>
+            
+            <div id="table_container">
+              <table id="table_athletes">
+                  <!-- Table content goes here -->
+              </table>
+            </div>
+        </div>
 
-    // On definie une echelle de couleur
-    // via https://observablehq.com/@d3/color-schemes?collection=@d3/d3-scale-chromatic
-    var color = d3
-      .scaleQuantize()
-      .range(["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]);
+      
+        <!-- Settings Popup Window -->
+        <div id="settings_popup" class="popup">
+            <div class="popup-content">
+                <h2 id="title_settings">Settings</h2>
+                <div id="sport_list">
+                    <label for="options">Sport:</label>
+                    <select id="settings_list">
+                </div>
+                
+                </select>
+                <br>
 
-    var path = d3.geoPath().projection(projection);
+                <div id="radio_buttons">
+                    <label for="male">Men:</label>
+                    <input type="radio" id="radio_male" name="radio_gender">
+                    <label for="female">Women:</label>
+                    <input type="radio" id="radio_female" name="radio_gender" checked="false">
+                </div>
 
-    // Chargement des donnees
-    d3.csv("us-ag-productivity-2004.csv").then(function (data) {
-      //Set input domain for color scale
-      color.domain([
-        d3.min(data, function (d) {
-          return d.value;
-        }),
-        d3.max(data, function (d) {
-          return d.value;
-        })
-      ]);
+                <div class="slider_container">
+                    <label for="slider">Number:</label>
+                    <input type="range" id="slider" name="slider" min="1" max="100" value="10">
+                    <span id="sliderValue">10</span>
+                </div>
+            </div>
 
-      d3.json("us-states2.json").then(function (json) {
-        //On fusionne les donnees avec le GeoJSON
-        for (var i = 0; i < data.length; i++) {
-          console.log('i = ', i)
-          //Nom de l'etat
-          var dataState = data[i].state;
-          console.log(dataState);
-
-          //Valeur associee a l'etat
-          var dataValue = parseFloat(data[i].value);
-
-          //Recherche de l'etat dans le GeoJSON
-          for (var j = 0; j < json.features.length; j++) {
-            var jsonState = json.features[j].properties.name;
-            if (dataState == jsonState) {
-              //On injecte la valeur de l'Etat dans le json
-              json.features[j].properties.value = dataValue;
-
-              //Pas besoin de chercher plus loin
-              break;
-            }
-          }
-        }
-        g.selectAll("path")
-          .data(json.features)
-          .join("path")
-          .attr("d", path)
-          .style("fill", function (d) {
-            //on prend la valeur recupere plus haut
-            var value = d.properties.value;
-
-            if (value) {
-              return color(value);
-            } else {
-              // si pas de valeur alors en gris
-              return "#ccc";
-            }
-          });
-      });
-    });
-  </script>
+            <script src="load_data.js"></script>
+  
+            <script>
+              // Open the popup when the "Settings" link is clicked
+              document.getElementById("settings_button").addEventListener("click", function(event) {
+                  event.preventDefault();
+                  settings_list = document.getElementById("settings_list");
+                //   console.log("settings_list = ", settings_list)
+                  // Add new options
+                  if (sport_map.settings_loaded == false){
+                    sport_map.set_sports.forEach((option, index) => {
+                        sport_map.index_sport_settings[option] = index;
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        settings_list.appendChild(optionElement);
+                    });
+                    sport_map.settings_loaded = true;
+                  }
+                  settings_list.selectedIndex = sport_map.index_sport_settings[sport_map.sport];
+                  
+                  document.getElementById("settings_popup").style.display = "block";
+                  sport_map.settings_open = true;
+                //   console.log("countries, countries sport = ", sport_map.countries_sport)
+              });
+  
+             
+              // Close the popup when the close button is clicked
+              
+            </script>
+        </div>
 </body>
+</html>
