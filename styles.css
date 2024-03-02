@@ -17,7 +17,7 @@
     right: 0;
     background-color: #333;
     padding: 1.2vh 1vw;
-    font-size: 1vw; 
+    font-size: 1.2vw; 
 }
 
 .top-bar nav ul {
@@ -41,16 +41,20 @@
     font-weight: bold;
 }
 
-/* Styling for the map container */
+/* Styling for the map container */ */
 /* .map-container { */
     /* height: 100vh; */
     /* margin-top: 0.1vh; */
     /* margin-right: 200px; Adjust based on the width of the top bar */
-/* } */
+/* }
 
 /* .map {
     height: 100vh;
 } */
+
+.map{
+    height: 100%;
+}
 
 .top_title {
     display: flex; /* Set the display property to flex */
@@ -60,7 +64,7 @@
 }
 
 #top_title_text {
-    font-size: 1.2vw; /* Adjust the size of the text */
+    font-size: 1.5vw; /* Adjust the size of the text */
 }
 
 .popup {
@@ -85,19 +89,19 @@
 } */
 
 #title_settings{
-    font-size: 1vw;
+    font-size: 1.3vw;
 }
 
 .popup-content {
     text-align: center;
     margin-right: 0.5vw;
-    font-size: 1vw;
+    font-size: 1.3vw;
 }
 
 #settings_list {
     padding-top: 0.3vh;
     padding-bottom: 0.3vh;
-    font-size: 0.8vw;
+    font-size: 0.9vw;
 }
 
 #ok_button_settings{
@@ -160,18 +164,18 @@
     left: 2%;
     min-height: 40%;
     max-height: 45%;
-    width: 15%;
+    width: 17%;
     overflow-y: auto;
-    font-size: 0.7vw;
+    font-size: 0.9vw;
 }
 
 .record_info {
     padding-top: 0.2vh;
-    font-size: 0.8vw; /* Adjust the font size of record information based on the window width */
+    font-size: 1.1vw; /* Adjust the font size of record information based on the window width */
 }
 
 #buttonContainer button {
-    font-size: 0.7vw; 
+    font-size: 1.1vw; 
     padding: 0.2vh 0.4vw; 
     margin-top: 0.7vh;
     margin-right: 0.3vw;
