@@ -60,6 +60,9 @@ function onSvgClicked() {
       sport_map.clicked = false   
       console.log('trigger_mouse_out, sport_map.current_country = ', sport_map.current_country);
       trigger_mouse_out(sport_map.sport_by_country_data[sport_map.current_country][sport_map.index_popup].rank-1);
+      sport_map.index_popup = 0;
+      document.getElementById("back_button").style.display = "none";
+      document.getElementById("popup_button").style.display = "none";
     }
     if (sport_map.settings_open){
       closePopup();
