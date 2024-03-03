@@ -223,9 +223,17 @@ function update_popup(){
   var flagImage = document.getElementById("flag_image");
 
   // Update image source and alt attributes
-  // console.log('getting flag,', "flags/" + get_country_id(hashmap_country_codes, data.Nat) + ".png")
-  flagImage.src = `flags/${get_country_id(hashmap_country_codes, data.Nat)}.png`; // Assuming "JAM" is the 3-letter country code
-  flagImage.alt = "JAM" + " Flag"; // You can set an appropriate alt text for accessibility
+  if (data.Nat in nationalities) {
+    console.log('Nat is a key in natinalities');
+    // flagImage.style.visibility = "visible";
+    flagImage.src = `flags/${get_country_id(hashmap_country_codes, data.Nat)}.png`;
+    document.getElementById("record_nationality").textContent = `Nationality: ${nationalities[data.Nat]}`;
+  } else {
+    flagImage.style.visibility = "none";
+    flagImage.src = ``; // Assuming "JAM" is the 3-letter country code
+    document.getElementById("record_nationality").textContent = `Nationality: ?`;
+  }
+  flagImage.alt = "";
 
 
   document.getElementById("record_rank").textContent = `Rank: ${data.rank}`;
@@ -233,7 +241,6 @@ function update_popup(){
   document.getElementById("record_age").textContent = `Age: ${data.age}`;
   document.getElementById("record_date").textContent = `Date: ${data.Date}`;
   document.getElementById("record_venue").textContent = `Venue: ${data.Venue}`;
-  document.getElementById("record_nationality").textContent = `Nationality: ${nationalities[data.Nat]}`;
 }
 
 document.getElementById("popup_button").onclick = on_next_clicked;
@@ -308,7 +315,12 @@ function initialize_table() {
     var position_cell = row.insertCell(2);
     
     name_cell.textContent = entry.Competitor;
-    flag_cell.innerHTML = '<img src="' + "flags/" + entry.Nat + ".png" + '" alt="' + entry.Competitor + ' Flag" style="width: 2vw;">';
+    if (entry.Nat in nationalities) {
+      flag_cell.innerHTML = '<img src="' + "flags/" + entry.Nat + ".png" + '" alt="' + entry.Competitor + ' Flag" style="width: 2vw;">';
+    } else {
+      flag_cell.innerHTML = '';
+    }
+    // flag_cell.innerHTML = '<img src="' + "flags/" + entry.Nat + ".png" + '" alt="' + entry.Competitor + ' Flag" style="width: 2vw;">';
     position_cell.textContent = i+1;
 
    
@@ -369,7 +381,11 @@ function update_table() {
     var row = table.rows[i];
     var entry = sport_map.sport_data[i];
     row.cells[0].textContent = entry.Competitor;
-    row.cells[1].innerHTML = '<img src="' + "flags/" + get_country_id(hashmap_country_codes, entry.Nat) + ".png" + '" alt="' + entry.Competitor + ' Flag" style="width: 2vw;">';
+    if (entry.Nat in nationalities) {
+      row.cells[1].innerHTML = '<img src="' + "flags/" + get_country_id(hashmap_country_codes, entry.Nat) + ".png" + '" alt="' + entry.Competitor + ' Flag" style="width: 2vw;">';
+    } else {
+      row.cells[1].innerHTML = '';
+    }
     row.cells[2].textContent = i+1;
   }
 }
