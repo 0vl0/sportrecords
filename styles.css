@@ -213,8 +213,8 @@
 
 #radio_buttons input[type="radio"] {
     /* Increase the width and height to make the radio buttons larger */
-    width: 0.5vw;
-    height: 0.5vw;
+    width: 0.9vw;
+    height: 0.9vw;
     /* Adjust other styles as needed */
 }
 
@@ -239,7 +239,7 @@
 
 .charts-container {
     /* Styles for the charts container */
-    display: none;
+    display: none;  
     padding: 0.1vh;
     /* Add any additional styling as needed */
 }
