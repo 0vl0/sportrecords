@@ -20,113 +20,138 @@
 <body>
     <div class="container">
         <!-- <script src="load_data.js"></script> -->
-        <div class="top_title">
-            <span id="top_title_text"></span>
-        </div>
 
-        <div class="top-bar">
-            <nav>
-                <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Chart</a></li>
-                    <li><a href="#" id="settings_button">Settings</a></li>
-                </ul>
-            </nav></div>
+        <div class="content-container">
 
-
-        <div id="main_container" class="map-container">
-            <svg id="map"></svg>
-            <!-- Athlete Popup Window -->
-            <div id="record_popup">
-                <h2 id="athlete_name"></h2>
-                <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor<br></span> -->
-                <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor <img src="flags/JAM.png" id="country_picture" style="vertical-align: middle;"></span> -->
-                <div class="record_info">
-
-                  <div id="competitor_container" style="font-size: 1.3vw; font-weight: bold; display: flex; align-items: center;">
-                      <span id="record_competitor">Competitor<br></span>
-                      <img id="flag_image" src="" alt="" style="vertical-align: middle; padding-left:1vh; width: 2.6vw;">
-                  </div>
-                  
-                  <span id="record_rank">Rank: <br></span>
-                  <span id="record_mark">Mark: <br></span>
-                  <span id="record_age">Age: <br></span>
-                  <span id="record_date">Date: <br></span>
-                  <span id="record_venue">Venue: <br></span>
-                  <span id="record_nationality">Nationality: <br></span>
-                  <div id="buttonContainer">
-                      <!-- Back button initially hidden -->
-                      <button id="back_button" style="display: none;">Back</button>
-                      
-                      <!-- Next button -->
-                      <span id="popup_button" style="display: none;"><button>Next</button></span>
-                  </div>
-              
-                </div>
+            <div class="top_title">
+                <span id="top_title_text"></span>
             </div>
-            
-            <div id="table_container">
-              <table id="table_athletes">
-                  <!-- Table content goes here -->
-              </table>
-            </div>
-        </div>
 
-      
-        <!-- Settings Popup Window -->
-        <div id="settings_popup" class="popup">
-            <div class="popup-content">
-                <h2 id="title_settings">Settings</h2>
-                <div id="sport_list">
-                    <label for="options">Sport:</label>
-                    <select id="settings_list">
+            <div class="top-bar">
+                <nav>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Chart</a></li>
+                        <li><a href="#" id="settings_button">Settings</a></li>
+                    </ul>
+                </nav></div>
+
+
+            <div id="main_container" class="map-container">
+                <svg id="map"></svg>
+                <!-- Athlete Popup Window -->
+                <div id="record_popup">
+                    <h2 id="athlete_name"></h2>
+                    <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor<br></span> -->
+                    <!-- <span id="record_competitor" style='font-size: 20px; font-weight: bold;'>Competitor <img src="flags/JAM.png" id="country_picture" style="vertical-align: middle;"></span> -->
+                    <div class="record_info">
+
+                    <div id="competitor_container" style="font-size: 1.3vw; font-weight: bold; display: flex; align-items: center;">
+                        <span id="record_competitor">Competitor<br></span>
+                        <img id="flag_image" src="" alt="" style="vertical-align: middle; padding-left:1vh; width: 2.6vw;">
+                    </div>
+                    
+                    <span id="record_rank">Rank: <br></span>
+                    <span id="record_mark">Mark: <br></span>
+                    <span id="record_age">Age: <br></span>
+                    <span id="record_date">Date: <br></span>
+                    <span id="record_venue">Venue: <br></span>
+                    <span id="record_nationality">Nationality: <br></span>
+                    <div id="buttonContainer">
+                        <!-- Back button initially hidden -->
+                        <button id="back_button" style="display: none;">Back</button>
+                        
+                        <!-- Next button -->
+                        <span id="popup_button" style="display: none;"><button>Next</button></span>
+                    </div>
+                
+                    </div>
                 </div>
                 
-                </select>
-                <br>
-
-                <div id="radio_buttons">
-                    <label for="male">Men:</label>
-                    <input type="radio" id="radio_male" name="radio_gender">
-                    <label for="female">Women:</label>
-                    <input type="radio" id="radio_female" name="radio_gender" checked="false">
+                <div id="table_container">
+                    <table id="table_athletes">
+                        <!-- Table content goes here -->
+                    </table>
                 </div>
 
-                <div class="slider_container">
-                    <label for="slider">Number:</label>
-                    <input type="range" id="slider" name="slider" min="1" max="100" value="10">
-                    <span id="sliderValue">10</span>
+                 <!-- Settings Popup Window -->
+            <div id="settings_popup" class="popup">
+                <div class="popup-content">
+                    <h2 id="title_settings">Settings</h2>
+                    <div id="sport_list">
+                        <label for="options">Sport:</label>
+                        <select id="settings_list">
+                    </div>
+                    
+                    </select>
+                    <br>
+
+                    <div id="radio_buttons">
+                        <label for="male">Men:</label>
+                        <input type="radio" id="radio_male" name="radio_gender">
+                        <label for="female">Women:</label>
+                        <input type="radio" id="radio_female" name="radio_gender" checked="false">
+                    </div>
+
+                    <div class="slider_container">
+                        <label for="slider">Top:</label>
+                        <input type="range" id="slider" name="slider" min="1" max="100" value="10">
+                        <span id="sliderValue">10</span>
+                    </div>
                 </div>
+                
+            </div>
+  
             </div>
 
-            <script src="load_data.js"></script>
-  
-            <script>
-              // Open the popup when the "Settings" link is clicked
-              document.getElementById("settings_button").addEventListener("click", function(event) {
-                  event.preventDefault();
-                  settings_list = document.getElementById("settings_list");
-                //   console.log("settings_list = ", settings_list)
-                  // Add new options
-                  if (sport_map.settings_loaded == false){
-                    sport_map.set_sports.forEach((option, index) => {
-                        sport_map.index_sport_settings[option] = index;
-                        const optionElement = document.createElement('option');
-                        optionElement.value = option;
-                        optionElement.textContent = option;
-                        settings_list.appendChild(optionElement);
-                    });
-                    sport_map.settings_loaded = true;
-                  }
-                  settings_list.selectedIndex = sport_map.index_sport_settings[sport_map.sport];
-                  
-                  document.getElementById("settings_popup").style.display = "block";
-                  sport_map.settings_open = true;
-                //   console.log("countries, countries sport = ", sport_map.countries_sport)
-              });
-  
-                           
-            </script>
         </div>
+
+        
+        <div id="charts_container" class="charts-container">
+            <svg id="svg_charts"></svg>
+            <div id="settings_popup_2" class="popup2">
+                <div class="popup-content">
+                    <h2 id="title_settings2">Settings</h2>
+                    <div class="slider_container">
+                        <label for="slider_2">Top:</label>
+                        <input type="range" id="slider_2" name="slider_2" min="1" max="100" value="10">
+                        <span id="sliderValue_2">1</span>
+                    </div>
+                </div> 
+            </div>
+        </div>
+
+        
+        <script src="load_data.js"></script>
+    
+        <script>
+        // Open the popup when the "Settings" link is clicked
+        document.getElementById("settings_button").addEventListener("click", function(event) {
+            event.preventDefault();
+            settings_list = document.getElementById("settings_list");
+            //   console.log("settings_list = ", settings_list)
+            // Add new options
+            if (sport_map.settings_loaded == false){
+                sport_map.set_sports.forEach((option, index) => {
+                    sport_map.index_sport_settings[option] = index;
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    optionElement.textContent = option;
+                    settings_list.appendChild(optionElement);
+                });
+                sport_map.settings_loaded = true;
+            }
+            settings_list.selectedIndex = sport_map.index_sport_settings[sport_map.sport];
+            
+            document.getElementById("settings_popup").style.display = "block";
+            sport_map.settings_open = true;
+            //   console.log("countries, countries sport = ", sport_map.countries_sport)
+        });
+
+                    
+        </script>
+
+    </div>
+
 </body>
 </html>

@@ -33,7 +33,7 @@ var g = svg.append("g");
 
 sport_map.g = g;
 sport_map.sport = '100-metres';
-document.getElementById("top_title_text").textContent = sport_map.sport;
+// document.getElementById("top_title_text").textContent = sport_map.sport;
 sport_map.clicked = false;
 sport_map.settings_loaded = false;
 sport_map.index_sport_settings = {};
@@ -45,20 +45,86 @@ sport_map.index_popup = 0;
 sport_map.last_time_svg_clicked = 0;
 sport_map.gender = 'men';
 sport_map.number_samples = 10;
+document.getElementById("top_title_text").textContent = `Top ${sport_map.number_samples} performances of ${sport_map.sport}`;
+
+// const recordPopup = document.getElementById("record_popup");
+
+// // Add event listener for mouseenter
+// recordPopup.addEventListener("mouseenter", function(event) {
+//     // Your code to execute when mouse enters the element
+//     // For example:
+//     console.log("Mouse entered the record popup");
+// });
 
 sport_map.color = d3.scaleLinear()
     .domain([sport_map.number_samples, 1])
     .range(["rgb(100, 0, 0)", "red"])
 
+    var legend = g.append("g")
+    .attr("transform", `translate(${0.02*width},${0.87*height})`);
+
+// Create color gradient
+var gradient = legend.append("defs")
+    .append("linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%");
+
+gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "rgb(100, 0, 0)");
+
+gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "red");
+
+// Create rectangle for color gradient
+legend.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", width*0.17)
+    .attr("height", height/50)
+    .style("fill", "url(#gradient)");
+
+// Add label at the right bottom
+legend.append("text")
+    .attr("x", width*0.195)
+    .attr("y", height/55)
+    .style("text-anchor", "end")
+    .style("font-weight", "bold") // Make it bold
+    .style("font-size", "1.1vw") // Increase font size
+    .text("Best");
+
+function on_settings_clicked(){
+  settings_list = document.getElementById("settings_list");
+//   console.log("settings_list = ", settings_list)
+  // Add new options
+  if (sport_map.settings_loaded == false){
+    sport_map.set_sports.forEach((option, index) => {
+        sport_map.index_sport_settings[option] = index;
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        settings_list.appendChild(optionElement);
+    });
+    sport_map.settings_loaded = true;
+  }
+  settings_list.selectedIndex = sport_map.index_sport_settings[sport_map.sport];
+  
+  document.getElementById("settings_popup").style.display = "block";
+  sport_map.settings_open = true;
+  //   console.log("countries, countries sport = ", sport_map.countries_sport)
+}
+
 function onSvgClicked() {
-    // console.log('onSvgClicked, clicked = ', sport_map.clicked)
     const currentTime = new Date().getTime();
     if (sport_map.clicked && currentTime-sport_map.last_time_svg_clicked >= 100){
       sport_map.g.selectAll("path")
         .attr("opacity", .8)
       document.getElementById("record_popup").style.visibility = "hidden";
       sport_map.clicked = false   
-      console.log('trigger_mouse_out, sport_map.current_country = ', sport_map.current_country);
       trigger_mouse_out(sport_map.sport_by_country_data[sport_map.current_country][sport_map.index_popup].rank-1);
       sport_map.index_popup = 0;
       document.getElementById("back_button").style.display = "none";
@@ -73,21 +139,49 @@ document.getElementById("map").addEventListener("click", onSvgClicked);
 document.getElementById("radio_male").checked = true;
 
 const hashmap_country_codes = {
-  "GER": "DEU",
+  "GER":"DEU",
   "SUI":"CHE",
   "NED":"NLD",
   "RSA":"ZAF",
   "BAH":"BHS",
   "NGR":"NGA",
-  "PUR":"PRI"
+  "PUR":"PRI",
+  "ALG":"DZA",
+  "GRN":"GRD",
+  "BOT":"BWA",
+  "ZAM":"ZMB",
+  "KSA":"SAU",
+  "DEN":"DNK",
+  "SUD":"SDN",
+  "SLO":"SVN",
+  "FRG":"DEU",
+  "POR":"PRT",
+  "GDR":"DEU"
 };
 
 function get_country_id(hashmap, key) {
-  // console.log('get_country_id: ', key)
   if (key in hashmap) {
       return hashmap[key];
   } else {
       return key;
+  }
+}
+
+function close_record_popup(){
+  sport_map.g.selectAll("path")
+    .attr("opacity", .8)
+    document.getElementById("record_popup").style.visibility = "hidden";
+    document.getElementById("popup_button").style.display = "none";
+    document.getElementById("back_button").style.display = "none";
+    sport_map.index_popup = 0;
+    if (sport_map.current_country != '' && sport_map.current_country in sport_map.sport_by_country_data){
+      trigger_mouse_out(sport_map.sport_by_country_data[sport_map.current_country][sport_map.index_popup].rank-1);
+    }
+}
+
+function on_mouse_leave(d){
+  if (sport_map.clicked == false && d.id != sport_map.current_country){
+    close_record_popup();
   }
 }
 
@@ -104,7 +198,6 @@ Promise.all([
 
 
   sport_map.raw = records_data.map((d, i) => {
-    // console.log('d = ', d)
     d.country_record = get_country_id(hashmap_country_codes, d.Venue.match(country_regex)[1]);
     d.date_record = d3.timeParse(format)(d.Date);
     if (d.DOB) {
@@ -124,6 +217,8 @@ Promise.all([
   sport_map.set_sports = [...new Set(sport_map.raw.map(d => d['event_name']))];
   console.log('set_sports = ', sport_map.set_sports);
 
+  on_settings_clicked();
+
   sport_map.paths = sport_map.g.selectAll("path")
                                .data(sport_map.world.features);
 
@@ -135,7 +230,8 @@ Promise.all([
                  .style("fill", function (d) {
                          return "#e1f1f2";
                   }).on("mouseenter", (e,d) => {
-                    // console.log('d = ', d)
+                    on_mouse_leave(d);
+
                     if (sport_map.clicked == false){
                       sport_map.g.selectAll("path")
                         .filter(f => f == d)
@@ -143,6 +239,7 @@ Promise.all([
                     }
 
                     if (sport_map.clicked == false && sport_map.countries_sport.includes(d.id)){
+                      console.log('d = ', d)
                     
                       sport_map.g.selectAll("path")
                         // .filter(f => !f.__selected)
@@ -169,28 +266,15 @@ Promise.all([
                     record_popup.style.visibility = "visible";
 
                       if (sport_map.sport_by_country_data[d.id].length > 1){
-                        console.log('length > 1 !')
                         document.getElementById("popup_button").style.display = "inline-block";
                       }
                       
                     }
-              
                   })
                 .on("mouseleave", (e, d) => {
-                  if (sport_map.clicked == false){
-                    sport_map.g.selectAll("path")
-                    .attr("opacity", .8)
-                    document.getElementById("record_popup").style.visibility = "hidden";
-                    document.getElementById("popup_button").style.display = "none";
-                    document.getElementById("back_button").style.display = "none";
-                    sport_map.index_popup = 0;
-                    if (sport_map.current_country != ''){
-                      trigger_mouse_out(sport_map.sport_by_country_data[sport_map.current_country][sport_map.index_popup].rank-1);
-                    }
-                  }
+                  on_mouse_leave(d);
                 })
                 .on("click", (e, d) => {
-                  console.log('onmouseclick, d = ', d)
 
                   if (sport_map.countries_sport.includes(d.id)){
                     sport_map.clicked = true
@@ -199,7 +283,6 @@ Promise.all([
                   }
                   else{
                     sport_map.clicked = false   
-                    // console.log('on mouse clicked trigger_mouse_out, sport_map.current_country = ', sport_map.current_country);
                     trigger_mouse_out(sport_map.sport_by_country_data[sport_map.current_country][sport_map.index_popup].rank-1);
                     document.getElementById("record_popup").style.visibility = "hidden";
                     document.getElementById("popup_button").style.display = "none";
@@ -223,11 +306,11 @@ function update_popup(){
   var flagImage = document.getElementById("flag_image");
 
   // Update image source and alt attributes
-  if (data.Nat in nationalities) {
+  if (get_country_id(hashmap_country_codes, data.Nat) in nationalities) {
     console.log('Nat is a key in natinalities');
     // flagImage.style.visibility = "visible";
     flagImage.src = `flags/${get_country_id(hashmap_country_codes, data.Nat)}.png`;
-    document.getElementById("record_nationality").textContent = `Nationality: ${nationalities[data.Nat]}`;
+    document.getElementById("record_nationality").textContent = `Nationality: ${nationalities[get_country_id(hashmap_country_codes, data.Nat) ]}`;
   } else {
     flagImage.style.visibility = "none";
     flagImage.src = ``; // Assuming "JAM" is the 3-letter country code
@@ -272,12 +355,8 @@ function on_back_clicked(){
 
 
 function update_map() {
-  console.log('update_map !')
-  console.log('sport-map.number_samples = ', sport_map.number_samples);
-  // console.log('sport_map.set_sports = ', sport_map.set_sports)
   // sport_map.sport_data = sport_map.raw.filter(d => d.event_name == sport_map.sport);
   sport_map.sport_data = sport_map.raw.filter(d => d.event_name == sport_map.sport && d.gender == sport_map.gender).slice(0, sport_map.number_samples);;
-  console.log('sport_map.sport_data.length = ', sport_map.sport_data.length); 
 
   sport_map.countries_sport = [... new Set(sport_map.sport_data.map(x => x.country_record))];
   sport_map.sport_by_country_data = get_data_by_country(sport_map.sport_data);
@@ -298,15 +377,10 @@ function update_map() {
 
 function initialize_table() {
   var table = document.getElementById('table_athletes');
-  // console.log('initialize table, sport_map.sport_data = ', sport_map.sport_data)
 
   for (var i = 0; i < sport_map.sport_data.length; i++) {
     var row = table.insertRow();
-    // console.log('i = ', i)
     var entry = sport_map.sport_data[i];
-    // console.log("Rank:", entry.Rank);
-    // console.log("Mark:", entry.Mark);
-    // console.log("Competitor:", entry.Competitor);
   
     var name_cell = row.insertCell(0);
     name_cell.style.paddingRight = '1vw';
@@ -324,8 +398,6 @@ function initialize_table() {
     position_cell.textContent = i+1;
 
    
-    // console.log('color', sport_map.color(i).slice(3, -1) + ', 0.2)')
-    // console.log('sport_map.color:', sport_map.color(i));
     (function(index) {
       row.addEventListener('mouseover', function() {
           // Change background color of the row
@@ -342,13 +414,13 @@ function initialize_table() {
 }
 
 function update_table() {
-  console.log('update table!');
+  // console.log('update table!');
   var table = document.getElementById('table_athletes');
   var num_rows = table.rows.length;
-  console.log('num_rows = ', num_rows);
-  console.log('sport_map.sport_data.length = ', sport_map.sport_data.length);
+  // console.log('num_rows = ', num_rows);
+  // console.log('sport_map.sport_data.length = ', sport_map.sport_data.length);
   if (num_rows < sport_map.sport_data.length){
-    console.log('adding rows...')
+    // console.log('adding rows...')
     for (var i = num_rows; i <  sport_map.sport_data.length; i++){
       var row = table.insertRow();
       var name_cell = row.insertCell(0);
@@ -371,7 +443,6 @@ function update_table() {
 
   }
   else{
-    console.log('deleting rows...')
     for (var i = num_rows-1; i>sport_map.sport_data.length-1; i--){
       table.deleteRow(i)
     }
@@ -381,7 +452,8 @@ function update_table() {
     var row = table.rows[i];
     var entry = sport_map.sport_data[i];
     row.cells[0].textContent = entry.Competitor;
-    if (entry.Nat in nationalities) {
+    console.log('get_country_id = ', get_country_id(hashmap_country_codes, entry.Nat))
+    if (get_country_id(hashmap_country_codes, entry.Nat) in nationalities) {
       row.cells[1].innerHTML = '<img src="' + "flags/" + get_country_id(hashmap_country_codes, entry.Nat) + ".png" + '" alt="' + entry.Competitor + ' Flag" style="width: 2vw;">';
     } else {
       row.cells[1].innerHTML = '';
@@ -437,6 +509,7 @@ function trigger_mouse_out(rowIndex) {
 var slider = document.getElementById("slider");
 // Get the element to display the slider value
 var sliderValueElement = document.getElementById("sliderValue");
+sport_map.slider = slider;
 
 // Function to update the displayed value when slider changes
 slider.addEventListener("input", function() {
@@ -444,16 +517,30 @@ slider.addEventListener("input", function() {
   on_settings_change();
 });
 
+var slider2 = document.getElementById("slider_2");
+// Get the element to display the slider2 value
+var sliderValueElement_2 = document.getElementById("sliderValue_2");
+sport_map.slider2 = slider2;
+
+slider2.addEventListener("input", function() {
+  sliderValueElement_2.textContent = slider2.value;
+});
+
 function on_settings_change() {
   settings_list = document.getElementById('settings_list');
   sport_map.color.domain([sport_map.number_samples, 1])
   sport_selected = settings_list.options[settings_list.selectedIndex].value;
+  sport_map.clicked=false;
 //   console.log('sport selected = ', sport_selected);
   sport_map.sport = sport_selected;
 //   console.log('sport = ', sport_map.sport);
 //   console.log('closing popup, sport_map = ', sport_map);
-  document.getElementById("top_title_text").textContent = sport_map.sport;
-
+  if (sport_map.slider.value == 1){
+    document.getElementById("top_title_text").textContent = `World record of ${sport_map.sport}`;
+  }
+  else{
+    document.getElementById("top_title_text").textContent = `Top ${sport_map.slider.value} performances of ${sport_map.sport}`;
+  }
     // Check if a radio button is selected
     if (document.getElementById("radio_male").checked) {
         sport_map.gender = 'men';
@@ -463,6 +550,10 @@ function on_settings_change() {
     }
 
     sport_map.number_samples = document.getElementById("slider").value;
+
+    if (document.getElementById('record_popup').style.visibility == 'visible'){
+      close_record_popup();
+    }
     // console.log('sport_map.gender = ', sport_map.gender);
 //   sport_map.color.domain([newDomainMin, newDomainMax]);
   update_map();
@@ -489,7 +580,6 @@ const femaleRadio = document.getElementById('radio_female');
   });
 
 function closePopup() {
-    document.getElementById("settings_popup").style.display = "none";
     on_settings_change();
 }
 
