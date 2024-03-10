@@ -86,11 +86,12 @@ legend.append("rect")
     .attr("y", 0)
     .attr("width", width*0.17)
     .attr("height", height/50)
-    .style("fill", "url(#gradient)");
+    .style("fill", "url(#gradient)")
+    .style("z-index", 9999);
 
 // Add label at the right bottom
 legend.append("text")
-    .attr("x", width*0.195)
+    .attr("x", width*0.2)
     .attr("y", height/55)
     .style("text-anchor", "end")
     .style("font-weight", "bold") // Make it bold
