@@ -10,8 +10,14 @@
     position: relative;
 }
 
+#main_container {
+    position: relative; /* or absolute */
+    /* Add any additional styling as needed */
+}
+
 /* Styling for the top bar */
 .top-bar {
+    visibility: hidden;
     position: absolute;
     top: 0;
     right: 0;
@@ -56,6 +62,15 @@
     height: 100%;
 }
 
+.charts-container{
+    height: 100%;
+    position:relative;
+}
+
+.svg_charts{
+    height:100%;
+}
+
 .top_title {
     display: flex; /* Set the display property to flex */
     justify-content: center; /* Center the content horizontally */
@@ -69,9 +84,9 @@
 
 .popup {
     display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
+    position: absolute;
+    top: 81%;
+    left: 68%;
     transform: translate(-50%, -50%);
     background-color: #fff;
     padding-top: 1vh;
@@ -79,14 +94,24 @@
     padding-left: 1vw;
     padding-right: 1vw;
     border: 1px solid #ccc;
-    z-index: 1000;
+    z-index: 0;
 }
 
-/* .popup-content {
-    text-align: center;
-    font-size: 1vw;
+.popup2 {
+    display: block;
+    position: absolute;
+    top: 81%;
+    left: 68%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    border: 1px solid #ccc;
+    z-index: 0;
+}
 
-} */
 
 #title_settings{
     font-size: 1.3vw;
@@ -117,7 +142,7 @@
 }
 
 #record_popup{
-    visibility: visible;
+    visibility: hidden;
     max-width: 100%;
     max-height: 100%;
     position: absolute;
@@ -126,6 +151,7 @@
     padding: 10px;    
     background-color: white;
     border: solid;
+    z-index: 9999;
 }
 
 #record_popup span {
@@ -203,4 +229,17 @@
 
 .slider_container input[type=range] {
     width: 50%; /* Adjust the width as needed */
+}
+
+.content-container {
+    /* Styles for your existing content container */
+    height: 100vh; /* Adjust height as needed */
+    overflow-y: scroll; /* Enable vertical scrolling */
+}
+
+.charts-container {
+    /* Styles for the charts container */
+    display: none;
+    padding: 0.1vh;
+    /* Add any additional styling as needed */
 }
